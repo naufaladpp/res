@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-AI XL</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+
+        /* Loader Style */
+        .loader {
+            width: 50px;
+            aspect-ratio: 1;
+            display: grid;
+            border: 4px solid #0000;
+            border-radius: 50%;
+            border-right-color: #25b09b;
+            animation: l15 1s infinite linear;
+        }
+
+        .loader::before,
+        .loader::after {    
+            content: "";
+            grid-area: 1/1;
+            margin: 2px;
+            border: inherit;
+            border-radius: 50%;
+            animation: l15 2s infinite;
+        }
+
+        .loader::after {
+            margin: 8px;
+            animation-duration: 3s;
+        }
+
+        @keyframes l15 { 
+            100% { transform: rotate(1turn); }
+        }
+
+        /* Loader Wrapper */
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .hidden {
+            display: none;
+        }
+  
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #334155;
+            color: #f8fafc;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+
+        /* text tebal */
+        h2 { 
+            text-align: center;
+            color: #fff; 
+        }
+
+        /* header */
+        .header { 
+            background-color: #1e293b;
+            padding: 20px 20px; 
+            color: white;
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            position: fixed;
+            bottom: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+            
+        .header .a {
+            text-align: center;
+            padding: 0px 10px;
+            color: white;
+        }
+            
+        .header .a span {
+            font-size: 30px;
+        }
+            
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .header .status {
+            color: #00a884;
+        }
+
+        .header .info {
+            flex-grow: 1;
+        }
+
+        .header .info h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .header .info p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .header .icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .icons i {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+
+        /* Menu Icon */
+        .menu-icon {
+            position: absolute;
+            right: 10px;
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Sidebar menu */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Hidden by default */
+            width: 250px;
+            height: 100%;
+            background-color: #1e293b;
+            padding: 26px;
+            transition: 0.5s;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .sidebar a:hover {
+            background-color: #1e294a;
+        }
+
+        .sidebar .close-btn {
+            top: 27px;
+            right: 20px;
+            font-size: 25px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* input text */
+        .input-container {
+            display: flex;
+            color: white;
+            align-items: center;
+            padding: 20px 20px;
+            background-color: #1e293b;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+            justify-content: center;
+        }
+        
+        .input-container input {
+            flex: 1;
+            padding: 15px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            background-color: #f4f4f4;
+            color: black;
+            margin-right: 10px;
+        }
+
+        .input-container input::placeholder {
+            color: #64748b;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #3b82f6;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .input-container button:hover {
+            background-color: #2563eb;
+        }
+
+        .input-container input:focus {
+            outline: none;
+        }
+
+        /* Chat */
+        .chat {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: calc(80vh - 80px);
+            overflow-y: auto;
+        }
+
+        /* Pesan AI */
+        .chat-header {
+            background-color: #0f172a;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #334155;
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 3px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 16px;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: #3b82f6; /* Warna latar belakang pesan pengguna */
+            color: white;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background-color: #0f172a; /* Warna latar belakang pesan AI */
+            color: white;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding: 45px 0;
+        }
+    
+        .icon {
+            position: absolute;
+            right: 50px;
+            top: 36px;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loader Wrapper -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <div class="header">
+        <img alt="X-AI XL" height="40" width="40" src="thumb/logo.png">
+        <div class="info">
+            <h1>X-AI XL</h1>
+            <p id="realtime-clock"></p>
+        </div>
+        <a href="https://safefileku.com/download/2XGGrMjAUDDBeCzB">
+            <i class="fas fa-cogs icon"></i> <!-- Ikon pengaturan (gerigi) -->
+        </a>
+        <i class="fas fa-bars menu-icon" id="menu-toggle"></i>
+    </div>
+
+    <main></main>
+    <div class="box"></div>
+    <div id="chat-box" class="chat-box"></div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ketik pesan Anda...">
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+    <main></main>
+
+        <!-- Sidebar menu -->
+        <div class="sidebar" id="sidebar">
+            <span class="close-btn" id="close-btn">Menu SideBar
+                <i class="fas fa-arrow-right"></i>
+            </span>
+            <a href="index.html">Beranda</a>
+            <a href="kontak.html">Kontak</a>
+            <h3>AI</h3>
+            <a href="xai.html">X-AI XL</a>
+            <a href="gemini.html">Gemini XL</a>
+            <a href="cohere.html">Cohere XL</a>
+            <a href="everywhere.html">Everywhere XL</a>
+        </div>
+
+    <script>
+        // Fungsi untuk menampilkan waktu real-time
+        const updateClock = () => {
+            const clockElement = document.getElementById('realtime-clock');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            clockElement.textContent = `Waktu: ${timeString}`;
+        };
+        // Perbarui waktu setiap detik
+        setInterval(updateClock, 1000);
+        updateClock(); // Panggilan awal
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const chatHistory = []; // Menyimpan history chat
+        async function sendMessage() {
+            const userText = userInput.value.trim();
+            if (!userText) return;
+            // Tampilkan pesan user
+            addMessage(userText, "user");
+            chatHistory.push({ role: "user", content: userText });
+            // Kosongkan input
+            userInput.value = "";
+            // Siapkan prompt dengan history chat
+            const defaultPrompt = `You are X-AI XL created by XBotz Launcher, you always use language Indonesian. Real Time: ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}. Real Date: ${new Date().toLocaleDateString()}`;
+            const historyText = chatHistory.map(entry => `${entry.role}: ${entry.content}`).join("\n");
+            const prompt = `${defaultPrompt}\n\nChat History:\n${historyText}`;
+            try {
+                // Panggil API
+                const response = await fetch(`api/xai`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        userText,
+                        prompt,
+                      }),
+                    });
+                const data = await response.json();
+
+                const botResponse = data.response || "Maaf, saya tidak bisa memahami permintaan Anda.";
+                addMessage(botResponse, "ai");
+                chatHistory.push({ role: "bot", content: botResponse });
+                // Batasi history chat agar tidak terlalu panjang
+                if (chatHistory.length > 20) {
+                    chatHistory.splice(0, chatHistory.length - 10);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                addMessage("❌ Terjadi kesalahan saat memproses permintaan Anda.", "ai");
+            }
+        }
+
+function formatMessage(text) {
+    // Menangani format **text** untuk memperbesar teks
+    text = text.replace(/\*\*(.*?)\*\*/g, '<span style="font-size: 1.5em; font-weight: bold;">$1</span>');
+
+    // Menangani format \n untuk membuat baris baru
+    text = text.replace(/\n/g, '<br>');
+
+    // Menangani format ```text``` untuk membuat form text yang menyesuaikan panjangnya
+    text = text.replace(/```(.*?)```/g, function(match, p1) {
+        // Membuat div yang bisa dicopy dan lebar menyesuaikan panjang teks
+        return `<div style="background-color: #808080; padding: 10px; border: 1px solid #ccc; border-radius: 5px; overflow-wrap: break-word; word-wrap: break-word; white-space: pre-wrap;">${p1}</div>`;
+    });
+
+    return text;
+}
+
+function addMessage(text, type) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${type}`; // Tentukan tipe pesan, 'user' atau 'ai'
+    
+    // Format teks sebelum menambahkannya ke div
+    messageDiv.innerHTML = formatMessage(text); // Menggunakan innerHTML agar HTML format ditampilkan
+
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll ke bawah agar pesan baru terlihat
+}
+        
+    // JavaScript for toggle sidebar menu
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const closeBtn = document.getElementById('close-btn');
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.add('active');
+    });
+
+    closeBtn.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+    });
+    </script>
+  
+    <script>
+        // Loader otomatis hilang setelah 3 detik
+        window.addEventListener("load", function () {
+            setTimeout(function () {
+                document.getElementById("loader").classList.add("hidden");
+                document.getElementById("content").style.display = "block";
+            }, 3000); // 3000 ms = 3 detik
+        });
+    </script>
+</body>
+</html>
